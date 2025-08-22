@@ -284,7 +284,7 @@ def get_response(user_query, chat_history, privacy_mode=False, top_k=3, similari
         print(f"Error in get_response: {str(e)}")
         return f"Sorry, error: {str(e)}", load_gamification()
 
-if below is the current code then give full updated code basis above:-
+
 # =========================
 # Streamlit UI
 # =========================
