@@ -292,76 +292,78 @@ st.set_page_config(page_title="🌿 Wellness Companion", layout="wide")
 # Custom CSS
 st.markdown("""
 <style>
-    .chat-container {
+    .chat-box {
         border: 1px solid #e0e0e0;
         border-radius: 8px;
         padding: 15px;
         margin-bottom: 10px;
-        max-height: 500px;
-        overflow-y: auto;
+        height: 400px;        /* Fixed height for scroll */
+        overflow-y: auto;     /* Enable scrolling */
+        background-color: #ffffff;
     }
     .user-message {
         background-color: #007ACC;  /* Strong blue */
-        color: white;              /* White text */
+        color: white;
         padding: 10px;
         border-radius: 10px;
         margin: 5px 0;
-        text-align: right;         /* Align to right side */
+        text-align: right;         /* Right align */
     }
     .bot-message {
         background-color: #f0f0f0; /* Light grey */
-        color: black;              /* Black text */
+        color: black;
         padding: 10px;
         border-radius: 10px;
         margin: 5px 0;
-        text-align: left;          /* Align to left side */
+        text-align: left;          /* Left align */
     }
 </style>
 """, unsafe_allow_html=True)
 
-
-# Header
+# --- Static Header ---
 st.title("🌿 Wellness Companion")
 st.caption("A safe space for mental health support and guidance")
 st.warning("I am not a licensed therapist. If you're in crisis, please seek professional help.")
 
-# Privacy settings
+# --- Privacy Settings ---
 privacy_mode = st.radio("🔒 Privacy Mode:", ["Private", "Standard"], index=0, horizontal=True)
 st.caption("🛡️ In Private mode, messages are anonymized (emails/phones/URLs/names redacted), history is not stored, and sessions are not logged.")
 
-# Initialize session state
+# --- Session state ---
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 if "gamedata" not in st.session_state:
     st.session_state.gamedata = load_gamification()
 
-# Gamification sidebar
+# --- Sidebar (gamification) ---
 st.sidebar.header("🎮 Your Progress")
 st.sidebar.write(f"🏅 Points: {st.session_state.gamedata['points']}")
 st.sidebar.write(f"🔥 Streak: {st.session_state.gamedata['streak']} days")
 st.sidebar.write(f"🎖️ Badges: {', '.join(st.session_state.gamedata['badges']) if st.session_state.gamedata['badges'] else 'None'}")
 
-# Chat container
+# --- Chat Section ---
 st.subheader("💬 Conversation")
-chat_container = st.container()
 
-# Display chat history
+# Scrollable chat container
+chat_container = st.container()
 with chat_container:
+    st.markdown('<div class="chat-box">', unsafe_allow_html=True)
     for role, msg in st.session_state.chat_history:
         if role == "You":
             st.markdown(f'<div class="user-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
         else:
             st.markdown(f'<div class="bot-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
+    st.markdown('</div>', unsafe_allow_html=True)
 
-# Input area
+# --- Input area ---
 user_input = st.chat_input("How are you feeling today?")
 
 if user_input:
-    # Add user message to chat history
+    # User message
     display_message = redact_pii(user_input) if privacy_mode == "Private" else user_input
     st.session_state.chat_history.append(("You", display_message))
 
-    # Get response
+    # Bot response
     with st.spinner("Thinking..."):
         response, gamedata = get_response(
             user_input,
@@ -369,18 +371,17 @@ if user_input:
             privacy_mode=(privacy_mode == "Private")
         )
 
-    # Add bot response to chat history
     st.session_state.chat_history.append(("Bot", response))
     st.session_state.gamedata = gamedata
 
-    # Save session only in Standard Mode
+    # Save only in Standard Mode
     if privacy_mode == "Standard":
         save_session(st.session_state.chat_history, allow_logging=True)
 
-    # Rerun to update the UI
     st.rerun()
 
-# Clear chat button
+# --- Clear chat ---
 if st.button("Clear Chat", type="secondary"):
     st.session_state.chat_history = []
     st.rerun()
+
