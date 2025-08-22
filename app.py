@@ -301,19 +301,24 @@ st.markdown("""
         overflow-y: auto;
     }
     .user-message {
-        background-color: #e6f7ff;
+        background-color: #007ACC;  /* Strong blue */
+        color: white;              /* White text */
         padding: 10px;
         border-radius: 10px;
         margin: 5px 0;
+        text-align: right;         /* Align to right side */
     }
     .bot-message {
-        background-color: #f9f9f9;
+        background-color: #f0f0f0; /* Light grey */
+        color: black;              /* Black text */
         padding: 10px;
         border-radius: 10px;
         margin: 5px 0;
+        text-align: left;          /* Align to left side */
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 # Header
 st.title("🌿 Wellness Companion")
