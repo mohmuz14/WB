@@ -344,9 +344,9 @@ chat_container = st.container()
 with chat_container:
     for role, msg in st.session_state.chat_history:
         if role == "You":
-            st.markdown(f'<div class="user-message"><b>{Role}:</b> {msg}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="user-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
         else:
-            st.markdown(f'<div class="bot-message"><b>{Role}:</b> {msg}</div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="bot-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
 
 # Input area
 user_input = st.chat_input("How are you feeling today?")
