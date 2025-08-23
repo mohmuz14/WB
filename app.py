@@ -123,7 +123,6 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
             gamedata["points"] += 20
             gamedata["last_reward_time"] = now.isoformat()
             # Motivational dopamine feedback
-            # 💡 Use Gemini to generate a custom motivational message
             try:
                 user_latest = chat_history[-1][1] if chat_history else ""
                 motivation_prompt = f"""
@@ -138,8 +137,7 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
             except:
                 gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
 
-
-            # Always generate a motivation per message
+    # --- Always generate a motivation per message (replace each time) ---
     try:
         user_latest = chat_history[-1][1] if chat_history else ""
         motivation_prompt = f"""
@@ -147,11 +145,9 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
         It should feel personal, encouraging, and empathetic.
         """
         motivation = get_gemini_response(motivation_prompt)
-        gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
+        gamedata["motivations"] = ["🌟 " + motivation.strip()]  # ✅ replaces instead of static text
     except:
         gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
-
-    
 
     # --- Badge system (recalculate each time) ---
     new_badges = []
@@ -170,7 +166,6 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
     
     gamedata["badges"] = new_badges  # ✅ overwrite instead of append
 
-
     # --- Motivational feedback via Gemini (strict safe mode) ---
     if len(gamedata["motivations"]) < 3 and gamedata["message_streak"] % 5 == 0:
         try:
@@ -178,14 +173,15 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
                 "Give me one short, uplifting sentence for someone who is making great progress in self-care and staying consistent.",
                 chat_history
             )
-            gamedata["motivations"]=[("💡 " + msg)]
+            gamedata["motivations"] = ["💡 " + msg]
         except:
-            gamedata["motivations"]=[("💡 Keep going — your consistency is inspiring!")]
+            gamedata["motivations"] = ["💡 Keep going — your consistency is inspiring!"]
 
     if not privacy_mode:
         save_gamification(gamedata)
 
     return gamedata
+
 
 
 # --- Gemini API ---
