@@ -401,57 +401,34 @@ if st.session_state.gamedata.get("motivations"):
 
 # --- Dopamine Triggers (after gamification stats) ---
 
-# =========================
-# Static Gamification HUD
-# =========================
-
-# Create placeholders once
-if "reward_placeholder" not in st.session_state:
-    st.session_state.reward_placeholder = st.empty()
-if "progress_placeholder" not in st.session_state:
-    st.session_state.progress_placeholder = st.empty()
-
-# 🎉 Confetti effect at 100 points
+# 🎉 Confetti effect when hitting 100 points
 if st.session_state.gamedata["points"] >= 100 and "100-points" not in st.session_state.gamedata["badges"]:
     st.balloons()
     st.session_state.gamedata["badges"].append("100-points")
     st.success("🏅 You just hit 100 points! Amazing progress!")
 
-# 📊 Progress bar (always visible, pinned above chat)
-progress = (st.session_state.gamedata["points"] % 100) / 100
-with st.session_state.progress_placeholder:
-    st.progress(progress)
+# 📊 Progress bar for next level (wraps every 100 points)
+progress = min(st.session_state.gamedata["points"] % 100 / 100, 1.0)
+st.progress(progress)
 
-# 🌈 Reward banner (always visible)
-last_points = st.session_state.gamedata.get("last_points", 0)
-with st.session_state.reward_placeholder:
-    st.markdown(
-        f"""
-        <h3 style='color:lime; text-shadow: 0px 0px 8px #00FF00;'>
-            🎉 +{last_points} Points! Keep going 🚀
-        </h3>
-        """,
-        unsafe_allow_html=True
-    )
+if progress == 1.0:
+    st.success("🔥 Level Up! You reached the next milestone!")
+    st.balloons()
 
-# ⚡ Toasts for streaks / milestones (triggered once per condition)
-if st.session_state.gamedata["message_streak"] == 5:
+# ⚡ Toasts for streaks / point milestones
+if st.session_state.gamedata["message_streak"] > 5:
     st.toast("🔥 You're on fire! 5-message streak!", icon="🔥")
 
 if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["points"] > 0:
     st.toast(f"🎉 You earned {st.session_state.gamedata['points']} points!", icon="🏆")
 
-# =========================
-# Chat UI (comes AFTER HUD)
-# =========================
-st.subheader("💬 Conversation")
-chat_container = st.container()
-with chat_container:
-    for role, msg in st.session_state.chat_history:
-        if role == "You":
-            st.markdown(f'<div class="user-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
-        else:
-            st.markdown(f'<div class="bot-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
+# 🌈 Fun animated text for instant reward
+st.markdown(
+    f"<h3 style='color:lime'>🎉 +{st.session_state.gamedata.get('last_points', 10)} Points! Keep going 🚀</h3>", 
+    unsafe_allow_html=True
+)
+
+
 
 
 
