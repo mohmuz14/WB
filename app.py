@@ -134,9 +134,10 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
                 Do NOT mention 'minutes'. Keep it encouraging and empathetic.
                 """
                 motivation = get_gemini_response(motivation_prompt)
-                gamedata["motivations"].append("🌟 " + motivation.strip())
+                gamedata["motivations"] = ["🌟 " + motivation.strip()]
             except:
-                gamedata["motivations"].append("🌟 Keep going — you're doing amazing!")
+                gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
+
 
             # Always generate a motivation per message
     try:
@@ -146,19 +147,29 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
         It should feel personal, encouraging, and empathetic.
         """
         motivation = get_gemini_response(motivation_prompt)
-        gamedata["motivations"].append("💡 " + motivation.strip())
+        gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
     except:
-        gamedata["motivations"].append("💡 You're making steady progress, keep it up!")
+        gamedata["motivations"] = ["💡 Keep going — you're doing amazing!"]
 
     
 
-    # --- Badge system ---
-    if gamedata["message_streak"] >= 5 and "Chatter" not in gamedata["badges"]:
-        gamedata["badges"].append("Chatter")
-    if gamedata["message_streak"] >= 10 and "Deep Conversationalist" not in gamedata["badges"]:
-        gamedata["badges"].append("Deep Conversationalist")
-    if gamedata["points"] >= 200 and "Motivation Master" not in gamedata["badges"]:
-        gamedata["badges"].append("Motivation Master")
+    # --- Badge system (recalculate each time) ---
+    new_badges = []
+    
+    if gamedata["message_streak"] >= 5:
+        new_badges.append("Chatter")
+    
+    if gamedata["message_streak"] >= 10:
+        new_badges.append("Deep Conversationalist")
+    
+    if gamedata["points"] >= 100:
+        new_badges.append("100-points")
+    
+    if gamedata["points"] >= 200:
+        new_badges.append("Motivation Master")
+    
+    gamedata["badges"] = new_badges  # ✅ overwrite instead of append
+
 
     # --- Motivational feedback via Gemini (strict safe mode) ---
     if len(gamedata["motivations"]) < 3 and gamedata["message_streak"] % 5 == 0:
@@ -167,9 +178,9 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
                 "Give me one short, uplifting sentence for someone who is making great progress in self-care and staying consistent.",
                 chat_history
             )
-            gamedata["motivations"].append("💡 " + msg)
+            gamedata["motivations"]=[("💡 " + msg)]
         except:
-            gamedata["motivations"].append("💡 Keep going — your consistency is inspiring!")
+            gamedata["motivations"]=[("💡 Keep going — your consistency is inspiring!")]
 
     if not privacy_mode:
         save_gamification(gamedata)
