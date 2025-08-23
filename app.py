@@ -19,7 +19,7 @@ from sentence_transformers import SentenceTransformer
 # =========================
 # Privacy & Config
 # =========================
-SIMILARITY_THRESHOLD = 0.60
+SIMILARITY_THRESHOLD = 0.80
 DEBUG_MODE = True
 
 # Configure Gemini API securely
@@ -152,34 +152,34 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
     # --- Badge system (recalculate each time) ---
     new_badges = []
     
-    if gamedata["points"] == 1:
+    if gamedata["points"] == 5:
         new_badges.append("🌱 Beginner Step")
     
-    if gamedata["points"] == 2:
+    if gamedata["points"] == 10:
         new_badges.append("💬 First Chat")
     
-    if gamedata["points"] == 3:
+    if gamedata["points"] == 15:
         new_badges.append("🎯 Consistent Starter")
     
-    if gamedata["points"] == 4:
+    if gamedata["points"] == 20:
         new_badges.append("🔥 Getting Momentum")
     
-    if gamedata["points"] == 5:
+    if gamedata["points"] == 25:
         new_badges.append("⭐ Steady Achiever")
     
-    if gamedata["points"] == 6:
+    if gamedata["points"] == 30:
         new_badges.append("🌟 Bright Mind")
     
-    if gamedata["points"] == 7:
+    if gamedata["points"] == 35:
         new_badges.append("🚀 Uplifted Spirit")
     
-    if gamedata["points"] == 8:
+    if gamedata["points"] == 40:
         new_badges.append("💎 Strong Commitment")
     
-    if gamedata["points"] == 9:
+    if gamedata["points"] == 45:
         new_badges.append("🏆 Champion of Wellness")
     
-    if gamedata["points"] >= 10:
+    if gamedata["points"] == 50:
         new_badges.append("🌈 Master of Consistency")
     
     if gamedata["points"] >= 100:
