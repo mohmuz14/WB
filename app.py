@@ -384,6 +384,7 @@ if user_input:
 # Clear chat button
 if st.button("Clear Chat", type="secondary"):
     st.session_state.chat_history = []
+    st.session_state.gamedata = load_gamification()
     st.session_state.gamedata = {"points": 0, "streak": 0, "last_active": None, "badges": []}
     st.rerun()
 
