@@ -385,11 +385,8 @@ if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
 
 if "gamedata" not in st.session_state:
-    # Try to load existing gamification data
-    gamedata = load_gamification()
-
-    # Ensure all required keys exist (fallbacks avoid KeyError)
-    default_gamedata = {
+      # Ensure all required keys exist (fallbacks avoid KeyError)
+      st.session_state.gamedata = {
         "points": 0,
         "message_streak": 0,
         "chat_start_time": None,
@@ -398,12 +395,6 @@ if "gamedata" not in st.session_state:
         "motivations": [],
         "last_points": 0,
     }
-    # Merge defaults with loaded data
-    for k, v in default_gamedata.items():
-        if k not in gamedata:
-            gamedata[k] = v
-
-    st.session_state.gamedata = gamedata
 
 
 # Gamification sidebar
