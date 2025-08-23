@@ -153,7 +153,7 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
     new_badges = []
     
     if gamedata["points"] >= 1:
-    new_badges.append("🌱 Beginner Step")
+        new_badges.append("🌱 Beginner Step")
     
     if gamedata["points"] >= 2:
         new_badges.append("💬 First Chat")
