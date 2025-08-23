@@ -408,7 +408,7 @@ if st.session_state.gamedata["points"] >= 100 and "100-points" not in st.session
     st.success("🏅 You just hit 100 points! Amazing progress!")
 
 # 📊 Progress bar for next level (wraps every 100 points)
-progress = min(st.session_state.gamedata["points"] % 100 / 100, 1.0)
+progress = (st.session_state.gamedata["points"] % 100) / 100
 st.progress(progress)
 
 if progress == 1.0:
@@ -416,17 +416,20 @@ if progress == 1.0:
     st.balloons()
 
 # ⚡ Toasts for streaks / point milestones
-if st.session_state.gamedata["message_streak"] > 5:
+if st.session_state.gamedata["message_streak"] == 5:
     st.toast("🔥 You're on fire! 5-message streak!", icon="🔥")
 
 if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["points"] > 0:
     st.toast(f"🎉 You earned {st.session_state.gamedata['points']} points!", icon="🏆")
 
-# 🌈 Fun animated text for instant reward
-st.markdown(
-    f"<h3 style='color:lime'>🎉 +{st.session_state.gamedata.get('last_points', 10)} Points! Keep going 🚀</h3>", 
-    unsafe_allow_html=True
-)
+# 🌈 Fun animated text for instant reward (use last_points tracked in update_gamification)
+last_points = st.session_state.gamedata.get("last_points", 0)
+if last_points > 0:
+    st.markdown(
+        f"<h3 style='color:lime'>🎉 +{last_points} Points! Keep going 🚀</h3>", 
+        unsafe_allow_html=True
+    )
+
 
 
 # Chat container
