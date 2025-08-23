@@ -383,8 +383,28 @@ st.caption("🛡️ In Private mode, messages are anonymized (emails/phones/URLs
 # Initialize session state
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = []
+
 if "gamedata" not in st.session_state:
-    st.session_state.gamedata = load_gamification()
+    # Try to load existing gamification data
+    gamedata = load_gamification()
+
+    # Ensure all required keys exist (fallbacks avoid KeyError)
+    default_gamedata = {
+        "points": 0,
+        "message_streak": 0,
+        "chat_start_time": None,
+        "last_reward_time": None,
+        "badges": [],
+        "motivations": [],
+        "last_points": 0,
+    }
+    # Merge defaults with loaded data
+    for k, v in default_gamedata.items():
+        if k not in gamedata:
+            gamedata[k] = v
+
+    st.session_state.gamedata = gamedata
+
 
 # Gamification sidebar
 st.sidebar.header("🎮 Your Progress")
@@ -475,8 +495,7 @@ if st.button("Clear Chat", type="secondary"):
         "chat_start_time": None,
         "last_reward_time": None,
         "badges": [],
-        "motivations": []
+        "motivations": [],
+        "last_points": 0,
     }
     st.rerun()
-
-
