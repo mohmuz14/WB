@@ -315,12 +315,8 @@ def get_response(user_query, chat_history, privacy_mode=False, top_k=3, similari
         recommendation_msg = get_dynamic_recommendation(query_for_processing, gemini_intent, chat_history)
 
          # --- Gamification ---
-        if privacy_mode:
-            # update gamification only in memory (no save to file)
-            gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=True)
-        else:
-            # update + save gamification
-            gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=False)
+        gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=privacy_mode)
+
 
 
         return f"{final_response}\n\n{recommendation_msg}", gamedata
