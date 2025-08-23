@@ -152,11 +152,35 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
     # --- Badge system (recalculate each time) ---
     new_badges = []
     
-    if gamedata["message_streak"] >= 5:
-        new_badges.append("Chatter")
+    if gamedata["points"] >= 1:
+    new_badges.append("🌱 Beginner Step")
     
-    if gamedata["message_streak"] >= 10:
-        new_badges.append("Deep Conversationalist")
+    if gamedata["points"] >= 2:
+        new_badges.append("💬 First Chat")
+    
+    if gamedata["points"] >= 3:
+        new_badges.append("🎯 Consistent Starter")
+    
+    if gamedata["points"] >= 4:
+        new_badges.append("🔥 Getting Momentum")
+    
+    if gamedata["points"] >= 5:
+        new_badges.append("⭐ Steady Achiever")
+    
+    if gamedata["points"] >= 6:
+        new_badges.append("🌟 Bright Mind")
+    
+    if gamedata["points"] >= 7:
+        new_badges.append("🚀 Uplifted Spirit")
+    
+    if gamedata["points"] >= 8:
+        new_badges.append("💎 Strong Commitment")
+    
+    if gamedata["points"] >= 9:
+        new_badges.append("🏆 Champion of Wellness")
+    
+    if gamedata["points"] >= 10:
+        new_badges.append("🌈 Master of Consistency")
     
     if gamedata["points"] >= 100:
         new_badges.append("100-points")
