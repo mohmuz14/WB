@@ -123,8 +123,34 @@ def update_gamification(chat_history, gamedata, privacy_mode=False):
             gamedata["points"] += 20
             gamedata["last_reward_time"] = now.isoformat()
             # Motivational dopamine feedback
-            motivation = f"⏳ Amazing patience! You've stayed engaged for {int((now-start_time).total_seconds()/60)} minutes."
-            gamedata["motivations"].append(motivation)
+            # 💡 Use Gemini to generate a custom motivational message
+            try:
+                user_latest = chat_history[-1][1] if chat_history else ""
+                motivation_prompt = f"""
+                Generate one short, uplifting motivational message (under 20 words) 
+                for a wellness chatbot user. 
+                Base it on this latest user message: "{user_latest}" 
+                and the fact they have stayed engaged for {int((now-start_time).total_seconds()/60)} minutes. 
+                Do NOT mention 'minutes'. Keep it encouraging and empathetic.
+                """
+                motivation = get_gemini_response(motivation_prompt)
+                gamedata["motivations"].append("🌟 " + motivation.strip())
+            except:
+                gamedata["motivations"].append("🌟 Keep going — you're doing amazing!")
+
+            # Always generate a motivation per message
+    try:
+        user_latest = chat_history[-1][1] if chat_history else ""
+        motivation_prompt = f"""
+        Write a short, positive reinforcement (max 15 words) for this user message: "{user_latest}".
+        It should feel personal, encouraging, and empathetic.
+        """
+        motivation = get_gemini_response(motivation_prompt)
+        gamedata["motivations"].append("💡 " + motivation.strip())
+    except:
+        gamedata["motivations"].append("💡 You're making steady progress, keep it up!")
+
+    
 
     # --- Badge system ---
     if gamedata["message_streak"] >= 5 and "Chatter" not in gamedata["badges"]:
