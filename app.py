@@ -85,29 +85,71 @@ def save_session(chat_history, file_path="chat_session_log.json", allow_logging=
         with open(file_path, "w") as f: json.dump(existing, f, indent=2)
     except Exception as e: print(f"Error saving session: {e}")
 
-# --- Gamification ---
+# --- Gamification (Improved) ---
 def load_gamification(file_path="gamification.json"):
     if os.path.exists(file_path):
-        with open(file_path, "r") as f: return json.load(f)
-    return {"points": 0, "streak": 0, "last_active": None, "badges": []}
+        with open(file_path, "r") as f:
+            return json.load(f)
+    return {
+        "points": 0,
+        "message_streak": 0,   # consecutive messages in current session
+        "chat_start_time": None,
+        "last_reward_time": None,
+        "badges": [],
+        "motivations": []
+    }
 
 def save_gamification(data, file_path="gamification.json"):
-    with open(file_path, "w") as f: json.dump(data, f, indent=2)
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=2)
 
-def update_gamification():
-    gamedata = load_gamification()
-    today = datetime.date.today().isoformat()
-    gamedata["points"] += 10
-    if gamedata["last_active"] != today:
-        if gamedata["last_active"] == (datetime.date.today() - datetime.timedelta(days=1)).isoformat():
-            gamedata["streak"] += 1
-        else: gamedata["streak"] = 1
-        gamedata["last_active"] = today
-    if gamedata["points"] >= 50 and "Getting Started" not in gamedata["badges"]: gamedata["badges"].append("Getting Started")
-    if gamedata["points"] >= 100 and "100 Club" not in gamedata["badges"]: gamedata["badges"].append("100 Club")
-    if gamedata["streak"] >= 7 and "1-Week Streak" not in gamedata["badges"]: gamedata["badges"].append("1-Week Streak")
-    save_gamification(gamedata)
+def update_gamification(chat_history, gamedata, privacy_mode=False):
+    now = datetime.datetime.now()
+
+    # --- Track message streak ---
+    gamedata["message_streak"] += 1
+    gamedata["points"] += 5  # base points per message
+
+    # --- Track chat duration (patience reward every 1 minute) ---
+    if not gamedata["chat_start_time"]:
+        gamedata["chat_start_time"] = now.isoformat()
+        gamedata["last_reward_time"] = now.isoformat()
+    else:
+        start_time = datetime.datetime.fromisoformat(gamedata["chat_start_time"])
+        last_reward_time = datetime.datetime.fromisoformat(gamedata["last_reward_time"])
+        elapsed = (now - last_reward_time).total_seconds() / 60.0
+
+        if elapsed >= 1:  # every 1 minute
+            gamedata["points"] += 20
+            gamedata["last_reward_time"] = now.isoformat()
+            # Motivational dopamine feedback
+            motivation = f"⏳ Amazing patience! You've stayed engaged for {int((now-start_time).total_seconds()/60)} minutes."
+            gamedata["motivations"].append(motivation)
+
+    # --- Badge system ---
+    if gamedata["message_streak"] >= 5 and "Chatter" not in gamedata["badges"]:
+        gamedata["badges"].append("Chatter")
+    if gamedata["message_streak"] >= 10 and "Deep Conversationalist" not in gamedata["badges"]:
+        gamedata["badges"].append("Deep Conversationalist")
+    if gamedata["points"] >= 200 and "Motivation Master" not in gamedata["badges"]:
+        gamedata["badges"].append("Motivation Master")
+
+    # --- Motivational feedback via Gemini (strict safe mode) ---
+    if len(gamedata["motivations"]) < 3 and gamedata["message_streak"] % 5 == 0:
+        try:
+            msg = get_gemini_response_strict(
+                "Give me one short, uplifting sentence for someone who is making great progress in self-care and staying consistent.",
+                chat_history
+            )
+            gamedata["motivations"].append("💡 " + msg)
+        except:
+            gamedata["motivations"].append("💡 Keep going — your consistency is inspiring!")
+
+    if not privacy_mode:
+        save_gamification(gamedata)
+
     return gamedata
+
 
 # --- Gemini API ---
 def get_gemini_response(prompt, max_retries=3):
@@ -274,9 +316,17 @@ def get_response(user_query, chat_history, privacy_mode=False, top_k=3, similari
 
         # In Private Mode, skip gamification persistence (no identifiable trail)
         if privacy_mode:
-            gamedata = {"points": 0, "streak": 0, "last_active": None, "badges": []}
+            gamedata = {
+                "points": 0,
+                "message_streak": 0,
+                "chat_start_time": None,
+                "last_reward_time": None,
+                "badges": [],
+                "motivations": []
+            }
         else:
-            gamedata = update_gamification()
+            gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=False)
+
 
         return f"{final_response}\n\n{recommendation_msg}", gamedata
 
@@ -339,8 +389,43 @@ if "gamedata" not in st.session_state:
 # Gamification sidebar
 st.sidebar.header("🎮 Your Progress")
 st.sidebar.write(f"🏅 Points: {st.session_state.gamedata['points']}")
-st.sidebar.write(f"🔥 Streak: {st.session_state.gamedata['streak']} days")
+st.sidebar.write(f"💬 Message Streak: {st.session_state.gamedata['message_streak']} messages")
 st.sidebar.write(f"🎖️ Badges: {', '.join(st.session_state.gamedata['badges']) if st.session_state.gamedata['badges'] else 'None'}")
+
+if st.session_state.gamedata.get("motivations"):
+    st.sidebar.subheader("🌟 Motivations")
+    for m in st.session_state.gamedata["motivations"][-3:]:
+        st.sidebar.write(m)
+
+# --- Dopamine Triggers (after gamification stats) ---
+
+# 🎉 Confetti effect when hitting 100 points
+if st.session_state.gamedata["points"] >= 100 and "100-points" not in st.session_state.gamedata["badges"]:
+    st.balloons()
+    st.session_state.gamedata["badges"].append("100-points")
+    st.success("🏅 You just hit 100 points! Amazing progress!")
+
+# 📊 Progress bar for next level (wraps every 100 points)
+progress = min(st.session_state.gamedata["points"] % 100 / 100, 1.0)
+st.progress(progress)
+
+if progress == 1.0:
+    st.success("🔥 Level Up! You reached the next milestone!")
+    st.balloons()
+
+# ⚡ Toasts for streaks / point milestones
+if st.session_state.gamedata["message_streak"] > 5:
+    st.toast("🔥 You're on fire! 5-message streak!", icon="🔥")
+
+if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["points"] > 0:
+    st.toast(f"🎉 You earned {st.session_state.gamedata['points']} points!", icon="🏆")
+
+# 🌈 Fun animated text for instant reward
+st.markdown(
+    f"<h3 style='color:lime'>🎉 +{st.session_state.gamedata.get('last_points', 10)} Points! Keep going 🚀</h3>", 
+    unsafe_allow_html=True
+)
+
 
 # Chat container
 st.subheader("💬 Conversation")
@@ -384,7 +469,14 @@ if user_input:
 # Clear chat button
 if st.button("Clear Chat", type="secondary"):
     st.session_state.chat_history = []
-    st.session_state.gamedata = load_gamification()
-    st.session_state.gamedata = {"points": 0, "streak": 0, "last_active": None, "badges": []}
+    st.session_state.gamedata = {
+        "points": 0,
+        "message_streak": 0,
+        "chat_start_time": None,
+        "last_reward_time": None,
+        "badges": [],
+        "motivations": []
+    }
     st.rerun()
+
 
