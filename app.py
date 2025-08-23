@@ -422,13 +422,20 @@ if st.session_state.gamedata["message_streak"] == 5:
 if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["points"] > 0:
     st.toast(f"🎉 You earned {st.session_state.gamedata['points']} points!", icon="🏆")
 
-# 🌈 Fun animated text for instant reward (use last_points tracked in update_gamification)
+# 🌈 Static reward banner (always shows emojis, points update dynamically)
+if "reward_placeholder" not in st.session_state:
+    st.session_state.reward_placeholder = st.empty()
+
 last_points = st.session_state.gamedata.get("last_points", 0)
-if last_points > 0:
-    st.markdown(
-        f"<h3 style='color:lime'>🎉 +{last_points} Points! Keep going 🚀</h3>", 
-        unsafe_allow_html=True
-    )
+
+st.session_state.reward_placeholder.markdown(
+    f"""
+    <h3 style='color:lime; text-shadow: 0px 0px 8px #00FF00;'>
+        🎉 +{last_points} Points! Keep going 🚀
+    </h3>
+    """,
+    unsafe_allow_html=True
+)
 
 
 
