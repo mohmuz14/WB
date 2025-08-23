@@ -32,9 +32,11 @@ genai.configure(api_key=gemini_api_key)
 # Firebase Setup
 # =========================
 if "firebase_initialized" not in st.session_state:
-    cred = credentials.Certificate(st.secrets["FIREBASE"])
+    firebase_key = json.loads(st.secrets["FIREBASE_KEY"])  # parse string → dict
+    cred = credentials.Certificate(firebase_key)
     firebase_admin.initialize_app(cred)
     st.session_state.firebase_initialized = True
+    st.success("✅ Connected to Firebase")
 
 db = firestore.client()
 
