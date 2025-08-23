@@ -424,12 +424,9 @@ if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["
 
 # 🌈 Fun animated text for instant reward
 st.markdown(
-    f"<h3 style='color:lime'>🎉 +{st.session_state.gamedata.get('last_points', 10)} Points! Keep going 🚀</h3>", 
+    f"<h3 style='color:lime'>🎉 +{st.session_state.gamedata['points']} Points! Keep going 🚀</h3>",
     unsafe_allow_html=True
 )
-
-
-
 
 
 # Chat container
