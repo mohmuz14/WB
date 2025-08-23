@@ -314,17 +314,12 @@ def get_response(user_query, chat_history, privacy_mode=False, top_k=3, similari
         # LLM-driven recommendation uses the same privacy-safe input
         recommendation_msg = get_dynamic_recommendation(query_for_processing, gemini_intent, chat_history)
 
-        # In Private Mode, skip gamification persistence (no identifiable trail)
+         # --- Gamification ---
         if privacy_mode:
-            gamedata = {
-                "points": 0,
-                "message_streak": 0,
-                "chat_start_time": None,
-                "last_reward_time": None,
-                "badges": [],
-                "motivations": []
-            }
+            # update gamification only in memory (no save to file)
+            gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=True)
         else:
+            # update + save gamification
             gamedata = update_gamification(chat_history, st.session_state.gamedata, privacy_mode=False)
 
 
