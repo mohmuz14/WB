@@ -32,7 +32,7 @@ genai.configure(api_key=gemini_api_key)
 # Firebase Setup
 # =========================
 if "firebase_initialized" not in st.session_state:
-    cred = credentials.Certificate(dict(st.secrets["FIREBASE"]))
+    cred = credentials.Certificate(st.secrets["FIREBASE"])
     firebase_admin.initialize_app(cred)
     st.session_state.firebase_initialized = True
 
