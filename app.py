@@ -401,15 +401,23 @@ if st.session_state.gamedata.get("motivations"):
 
 # --- Dopamine Triggers (after gamification stats) ---
 
+# === Setup placeholders (only once) ===
+if "reward_placeholder" not in st.session_state:
+    st.session_state.reward_placeholder = st.empty()
+
+if "progress_placeholder" not in st.session_state:
+    st.session_state.progress_placeholder = st.empty()
+
 # 🎉 Confetti effect when hitting 100 points
 if st.session_state.gamedata["points"] >= 100 and "100-points" not in st.session_state.gamedata["badges"]:
     st.balloons()
     st.session_state.gamedata["badges"].append("100-points")
     st.success("🏅 You just hit 100 points! Amazing progress!")
 
-# 📊 Progress bar for next level (wraps every 100 points)
+# 📊 Progress bar for next level (always visible)
 progress = (st.session_state.gamedata["points"] % 100) / 100
-st.progress(progress)
+with st.session_state.progress_placeholder:
+    st.progress(progress)
 
 if progress == 1.0:
     st.success("🔥 Level Up! You reached the next milestone!")
@@ -422,20 +430,17 @@ if st.session_state.gamedata["message_streak"] == 5:
 if st.session_state.gamedata["points"] % 50 == 0 and st.session_state.gamedata["points"] > 0:
     st.toast(f"🎉 You earned {st.session_state.gamedata['points']} points!", icon="🏆")
 
-# 🌈 Static reward banner (always shows emojis, points update dynamically)
-if "reward_placeholder" not in st.session_state:
-    st.session_state.reward_placeholder = st.empty()
-
+# 🌈 Static reward banner (always visible, emojis + points)
 last_points = st.session_state.gamedata.get("last_points", 0)
-
-st.session_state.reward_placeholder.markdown(
-    f"""
-    <h3 style='color:lime; text-shadow: 0px 0px 8px #00FF00;'>
-        🎉 +{last_points} Points! Keep going 🚀
-    </h3>
-    """,
-    unsafe_allow_html=True
-)
+with st.session_state.reward_placeholder:
+    st.markdown(
+        f"""
+        <h3 style='color:lime; text-shadow: 0px 0px 8px #00FF00;'>
+            🎉 +{last_points} Points! Keep going 🚀
+        </h3>
+        """,
+        unsafe_allow_html=True
+    )
 
 
 
