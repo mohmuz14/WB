@@ -15,8 +15,6 @@ from sklearn.neighbors import NearestNeighbors
 import streamlit as st
 import google.generativeai as genai
 from sentence_transformers import SentenceTransformer
-import firebase_admin
-from firebase_admin import credentials, firestore
 
 # =========================
 # Privacy & Config
@@ -27,18 +25,6 @@ DEBUG_MODE = True
 # Configure Gemini API securely
 gemini_api_key = st.secrets["GEMINI_API_KEY"]
 genai.configure(api_key=gemini_api_key)
-
-# =========================
-# Firebase Setup
-# =========================
-if "firebase_initialized" not in st.session_state:
-    firebase_key = json.loads(st.secrets["FIREBASE_KEY"])  # parse string → dict
-    cred = credentials.Certificate(firebase_key)
-    firebase_admin.initialize_app(cred)
-    st.session_state.firebase_initialized = True
-    st.success("✅ Connected to Firebase")
-
-db = firestore.client()
 
 # Load dataset
 with open("text_data_merged_intents.json", "r") as f:
@@ -88,20 +74,16 @@ def trim_response(text, max_words=120):
     words = text.split()
     return text if len(words) <= max_words else " ".join(words[:max_words]) + "..."
 
-def save_session(chat_history, allow_logging=True):
-    """Save chat session to Firebase Firestore"""
-    if not allow_logging:
-        return
+def save_session(chat_history, file_path="chat_session_log.json", allow_logging=True):
+    if not allow_logging: return
     try:
-        doc_ref = db.collection("chat_sessions").document()
-        doc_ref.set({
-            "history": chat_history,
-            "timestamp": firestore.SERVER_TIMESTAMP
-        })
-        st.success("✅ Session saved to Firebase")
-    except Exception as e:
-        st.error(f"❌ Error saving session: {e}")
-
+        if os.path.exists(file_path):
+            with open(file_path, "r") as f: existing = json.load(f)
+        else:
+            existing = []
+        existing.append(chat_history)
+        with open(file_path, "w") as f: json.dump(existing, f, indent=2)
+    except Exception as e: print(f"Error saving session: {e}")
 
 # --- Gamification (Improved) ---
 def load_gamification(file_path="gamification.json"):
