@@ -261,6 +261,8 @@ Analyze the following user message and classify it into ONE of these specific we
 - 'relationships': When the user discusses family, friends, or interpersonal issues
 - 'self_care': When the user talks about taking care of themselves physically/mentally
 - 'grief': When the user is dealing with loss or bereavement
+- 'physical_activity': When the user talks about exercise, movement, fitness, or wanting to be more active
+- 'nutrition': When the user discusses food, diet, healthy eating, or weight management
 - 'general': For general wellness questions or when no specific intent is clear
 
 Conversation history:
@@ -277,7 +279,7 @@ Return ONLY the single most appropriate intent keyword from the list above. Do n
 
     # Fallback to general if intent is not recognized
     valid_intents = {'stress', 'anxiety', 'depression', 'loneliness', 'motivation',
-                    'sleep', 'relationships', 'self_care', 'grief', 'general'}
+                    'sleep', 'relationships', 'self_care', 'grief', 'physical_activity', 'nutrition','general'}
 
     return intent if intent in valid_intents else 'general'
 
@@ -293,6 +295,8 @@ def get_intent_based_emoji(intent):
         'relationships': '💞',
         'self_care': '💆',
         'grief': '🕯️',
+        'physical_activity': '🏃',
+        'nutrition': '🥗',
         'general': '✨'
     }
     return emoji_map.get(intent, '✨')
@@ -309,6 +313,8 @@ You are a wellness assistant.
 Rules:
 - Never invent names, locations, or personal details unless the user explicitly provides them.
 - Suggest ONE short, practical, self-care action based on the user's feelings and the detected intent: {intent}
+- If the intent is 'physical_activity', give an easy movement or exercise suggestion.
+- If the intent is 'nutrition', give a healthy eating or hydration suggestion.
 - Keep it under 25 words.
 - Always begin with an emoji that matches the intent.
 
