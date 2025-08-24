@@ -4,4 +4,3 @@ sentence-transformers>=2.2.2
 scikit-learn==1.6.1
 numpy>=1.23
 firebase-admin
-google-cloud-firestore
