@@ -261,8 +261,8 @@ Analyze the following user message and classify it into ONE of these specific we
 - 'relationships': When the user discusses family, friends, or interpersonal issues
 - 'self_care': When the user talks about taking care of themselves physically/mentally
 - 'grief': When the user is dealing with loss or bereavement
-- 'physical_activity': When the user talks about exercise, movement, fitness, or wanting to be more active
-- 'nutrition': When the user discusses food, diet, healthy eating, or weight management
+- 'physical_activity': When the user talks about exercise, movement, body pain, sore muscles,fitness, or wanting to be more active
+- 'nutrition': When the user talks about food, diet, eating habits, weight, digestion, stomach pain, bloating, indigestion, or other gut/diet-related issues
 - 'general': For general wellness questions or when no specific intent is clear
 
 Conversation history:
@@ -501,7 +501,7 @@ with chat_container:
     for role, msg in st.session_state.chat_history:
         if role == "You":
             st.markdown(f'<div class="user-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
-        else:
+        elif role == "Companion":
             st.markdown(f'<div class="bot-message"><b>{role}:</b> {msg}</div>', unsafe_allow_html=True)
 
 # Input area
@@ -521,7 +521,7 @@ if user_input:
         )
 
     # Add bot response to chat history
-    st.session_state.chat_history.append(("Bot", response))
+    st.session_state.chat_history.append(("Companion", response))
     st.session_state.gamedata = gamedata
 
     # Save session only in Standard Mode
