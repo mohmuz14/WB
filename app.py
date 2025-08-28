@@ -38,7 +38,7 @@ with open("my_index.pkl", "rb") as f:
     nn_index = pickle.load(f)   # scikit-learn NearestNeighbors
 
 # Gemini model
-gemini_model = genai.GenerativeModel('gemini-2.0-flash')
+gemini_model = genai.GenerativeModel('gemini-2.0-flash-lite')
 
 # =========================
 # Privacy helpers
