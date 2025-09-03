@@ -367,11 +367,11 @@ def get_response(user_query, chat_history, privacy_mode=False, top_k=3, similari
 
         if cosine_similarity >= similarity_threshold:
             faiss_answer = matched_answers[0]
-            debug_meta = f"[📚 NearestNeighbors | Sim: {round(cosine_similarity, 2)} | Intent: {gemini_intent}]"
+            debug_meta = f"[ | Intent: {gemini_intent}]"
             final_response = f"{faiss_answer}\n{debug_meta}"
         else:
             response = get_gemini_response_strict(query_for_processing, chat_history)
-            debug_meta = f"[🧠 LLM | Sim: {round(cosine_similarity, 2)} | Intent: {gemini_intent}]"
+            debug_meta = f"[ | Intent: {gemini_intent}]"
             final_response = trim_response(response) + "\n" + debug_meta
 
         # LLM-driven recommendation uses the same privacy-safe input
