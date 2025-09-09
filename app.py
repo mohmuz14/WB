@@ -19,7 +19,7 @@ from sentence_transformers import SentenceTransformer
 # =========================
 # Privacy & Config
 # =========================
-SIMILARITY_THRESHOLD = 0.80
+SIMILARITY_THRESHOLD = 0.70
 DEBUG_MODE = True
 
 # Configure Gemini API securely
